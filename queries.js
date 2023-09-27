@@ -60,7 +60,7 @@ const getEvent = async (request, response) => {
         }
         response
           .status(200)
-          .json(resutls.rows[0]).end();
+          .json(resutls.rows).end();
       }
     );
   } catch (error) {

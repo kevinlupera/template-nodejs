@@ -13,13 +13,13 @@ app.use(
   
 app.use(express.static('public'))
 
-app.get('/events/:page/:idCategory', async (req, res) => {
-    await db.getEvent(req, res);
-  });
-
-app.get('/events/:id', async (req, res) => {
+app.get('/events/detail/:id', async (req, res) => {
 await db.getEvent(req, res);
 });
+
+app.get('/events/:page/:idCategory', async (req, res) => {
+    await db.getEvents(req, res);
+  });
 
 app.get('/categories', db.getCategories);
 

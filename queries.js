@@ -26,8 +26,11 @@ const getEvents = async (request, response) => {
   const page = parseInt(request.params.page);
   const idCategory = parseInt(request.params.idCategory);
   const offset = page == 1 ? 0 : ROWS_BY_PAGE * page;
+  console.log("🚀 ~ file: queries.js:29 ~ getEvents ~ offset:", offset)
   const total = parseInt(await getTotalEvents(idCategory));
+  console.log("🚀 ~ file: queries.js:30 ~ getEvents ~ total:", total)
   const totalPages = total ? parseInt(total / ROWS_BY_PAGE) + 1 : 0;
+  console.log("🚀 ~ file: queries.js:31 ~ getEvents ~ totalPages:", totalPages)
   pool.query(
     `SELECT * FROM events where id_category = ${idCategory} ORDER BY id ASC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`,
     (error, resutls) => {
@@ -46,6 +49,7 @@ const getCategories = (request, response) => {
     if (error) {
       throw error;
     }
+    console.log("🚀 ~ file: queries.js:49 ~ pool.query ~ resutls:", resutls)
     response.status(200).json(formatResponse(resutls.rows));
   });
 };

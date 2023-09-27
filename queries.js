@@ -1,7 +1,8 @@
 const Pool = require("pg").Pool;
+require('dotenv').config()
 
 const pool = new Pool({
-  user: process.env.USER,
+  user: process.env.USERDB,
   host: process.env.HOST,
   database: process.env.DATABASE,
   password: process.env.PASSWORD,
@@ -29,14 +30,8 @@ const getEvents = async (request, response) => {
     const page = parseInt(request.params.page);
     const idCategory = parseInt(request.params.idCategory);
     const offset = page == 1 ? 0 : ROWS_BY_PAGE * page;
-    console.log("🚀 ~ file: queries.js:29 ~ getEvents ~ offset:", offset);
     const total = parseInt(await getTotalEvents(idCategory));
-    console.log("🚀 ~ file: queries.js:30 ~ getEvents ~ total:", total);
     const totalPages = total ? parseInt(total / ROWS_BY_PAGE) + 1 : 0;
-    console.log(
-      "🚀 ~ file: queries.js:31 ~ getEvents ~ totalPages:",
-      totalPages
-    );
     pool.query(
       `SELECT * FROM events where id_category = ${idCategory} ORDER BY id ASC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`,
       (error, resutls) => {
@@ -54,13 +49,32 @@ const getEvents = async (request, response) => {
   }
 };
 
+const getEvent = async (request, response) => {
+  try {
+    const id = parseInt(request.params.id);
+    pool.query(
+      `SELECT * FROM events where id = ${id} LIMIT 1`,
+      (error, resutls) => {
+        if (error) {
+          throw error;
+        }
+        response
+          .status(200)
+          .json(resutls.rows[0]).end();
+      }
+    );
+  } catch (error) {
+    console.log("🚀 ~ file: queries.js:47 ~ getEvents ~ error:", error);
+    response.status(400).end();
+  }
+};
+
 const getCategories = (request, response) => {
   try {
     pool.query("SELECT * FROM categories ORDER BY id ASC", (error, resutls) => {
       if (error) {
         throw error;
       }
-      console.log("🚀 ~ file: queries.js:49 ~ pool.query ~ resutls:", resutls);
       response.status(200).json(formatResponse(resutls.rows)).end();
     });
   } catch (error) {
@@ -80,4 +94,5 @@ const formatResponse = (rows, page, totalPages, total) => {
 module.exports = {
   getCategories,
   getEvents,
+  getEvent
 };

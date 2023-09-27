@@ -14,9 +14,12 @@ app.use(
 app.use(express.static('public'))
 
 app.get('/events/:page/:idCategory', async (req, res) => {
-    console.log("🚀 ~ file: app.js:16 ~ app.get ~ req:", req)
-    await db.getEvents(req, res);
+    await db.getEvent(req, res);
   });
+
+app.get('/events/:id', async (req, res) => {
+await db.getEvent(req, res);
+});
 
 app.get('/categories', db.getCategories);
 

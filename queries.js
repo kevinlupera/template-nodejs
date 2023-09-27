@@ -1,10 +1,10 @@
 const Pool = require("pg").Pool;
 
 const pool = new Pool({
-  user: "fl0user",
-  host: "ep-soft-salad-49680337.us-east-2.aws.neon.tech",
-  database: "teveplaydb",
-  password: "U29ntQhXCKgd",
+  user: process.env.USER,
+  host: process.env.HOST,
+  database: process.env.DATABASE,
+  password: process.env.PASSWORD,
   port: 5432,
   ssl: {},
 });

@@ -45,7 +45,7 @@ const getEvents = async (request, response) => {
         }
         response
           .status(200)
-          .json(formatResponse(resutls.rows, page, totalPages, total));
+          .json(formatResponse(resutls.rows, page, totalPages, total)).end();
       }
     );
   } catch (error) {
@@ -61,7 +61,7 @@ const getCategories = (request, response) => {
         throw error;
       }
       console.log("🚀 ~ file: queries.js:49 ~ pool.query ~ resutls:", resutls);
-      response.status(200).json(formatResponse(resutls.rows));
+      response.status(200).json(formatResponse(resutls.rows)).end();
     });
   } catch (error) {
     console.log("🚀 ~ file: queries.js:67 ~ getCategories ~ error:", error);

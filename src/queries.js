@@ -69,7 +69,7 @@ const getEvent = async (request, response) => {
   }
 };
 
-const getCategories = (request, response) => {
+const getCategories = async (request, response) => {
   try {
     pool.query("SELECT * FROM categories ORDER BY id ASC", (error, resutls) => {
       if (error) {

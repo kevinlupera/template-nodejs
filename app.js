@@ -18,9 +18,9 @@ app.get('/events/:page/:idCategory', async (req, res) => {
 
 app.get('/categories', db.getCategories);
 
-// app.get('*', (req, res) => {
-//     res.redirect('/');
-// })
+app.get('*', (req, res) => {
+    res.redirect('/');
+})
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);

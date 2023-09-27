@@ -29,7 +29,7 @@ const getEvents = async (request, response) => {
   try {
     const page = parseInt(request.params.page);
     const idCategory = parseInt(request.params.idCategory);
-    const offset = page == 1 ? 0 : ROWS_BY_PAGE * page;
+    const offset = ROWS_BY_PAGE * (page - 1);
     const total = parseInt(await getTotalEvents(idCategory));
     const totalPages = total ? parseInt(total / ROWS_BY_PAGE) + 1 : 0;
     pool.query(

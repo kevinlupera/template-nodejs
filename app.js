@@ -23,8 +23,32 @@ app.get("/events/:page/:idCategory", API.authenticateKey, async (req, res) => {
   await db.getEvents(req, res);
 });
 
+app.post('/events', API.authenticateKey, async (req, res) => {
+  await db.createEvent(req, res);
+});
+
+app.put('/events/:id', API.authenticateKey, async (req, res) => {
+  await db.updateEvent(req, res);
+});
+
+app.delete('/events/:id', API.authenticateKey, async (req, res) => {
+  await db.deleteEvent(req, res);
+});
+
 app.get("/categories", API.authenticateKey, async (req, res) => {
   await db.getCategories(req, res);
+});
+
+app.post('/categories', API.authenticateKey, async (req, res) => {
+  await db.createCategory(req, res);
+});
+
+app.put('/categories/:id', API.authenticateKey, async (req, res) => {
+  await db.updateCategory(req, res);
+});
+
+app.delete('/categories/:id', API.authenticateKey, async (req, res) => {
+  await db.deleteCategory(req, res);
 });
 
 app.post("/encrypt", (req, res) => {

@@ -79,7 +79,7 @@ const getCategories = async (request, response) => {
     });
   } catch (error) {
     console.log("🚀 ~ file: queries.js:67 ~ getCategories ~ error:", error);
-    response.status(400).end();
+    response.status(500).end();
   }
 };
 const formatResponse = (rows, page, totalPages, total) => {

@@ -1,40 +1,55 @@
-const crypto = require('crypto')
-const config = require('./config.js')
+const config = require("./config.js");
+const crypto = require("crypto");
 
-const { secret_key, secret_iv, ecnryption_method } = config
+const { secret_key, secret_iv, ecnryption_method } = config;
 
 if (!secret_key || !secret_iv || !ecnryption_method) {
-  throw new Error('secretKey, secretIV, and ecnryptionMethod are required')
+  throw new Error("secretKey, secretIV, and ecnryptionMethod are required");
 }
 
-// Generate secret hash with crypto to use for encryption
-const key = crypto
-  .createHash('sha512')
-  .update(secret_key)
-  .digest('hex')
-  .substring(0, 32)
-const encryptionIV = crypto
-  .createHash('sha512')
-  .update(secret_iv)
-  .digest('hex')
-  .substring(0, 16)
+const algorithm = "aes-256-cbc";
+function encrypt(text, key, iv) {
+  // Deriva la clave y el IV desde las cadenas UTF-8
+  const derivedKey = Buffer.from(key, "utf8");
+  const derivedIv = Buffer.from(iv, "utf8");
+  let encrypted = "";
+
+  key = crypto.scryptSync(text, key, 32);
+
+  // Crea una instancia del cifrador AES-CTR con PKCS7
+  const cipher = crypto.createCipheriv(algorithm, derivedKey, derivedIv);
+
+  // Cifra el texto en formato utf-8
+  encrypted = cipher.update(text, "utf8", "base64");
+  cipher.setAutoPadding(true); // Habilita PKCS7
+  let base64Value = cipher.final("base64");
+
+  return base64Value;
+}
+
+function decrypt(encryptedText, key, iv) {
+  // Deriva la clave y el IV desde las cadenas UTF-8
+  const derivedKey = Buffer.from(key, "utf8");
+  const derivedIv = Buffer.from(iv, "utf8");
+
+  key = crypto.scryptSync(encryptedText, key, 32);
+  const decipher = crypto.createDecipheriv(algorithm, derivedKey, derivedIv);
+  let decrypted = decipher.update(encryptedText, "base64", "utf8");
+  decipher.setAutoPadding(true); // Habilita PKCS7
+
+  decrypted += decipher.final("utf8");
+  return decrypted;
+}
 
 // Encrypt data
 function encryptData(data) {
-  const cipher = crypto.createCipheriv(ecnryption_method, key, encryptionIV)
-  return Buffer.from(
-    cipher.update(data, 'utf8', 'hex') + cipher.final('hex')
-  ).toString('base64') // Encrypts data and converts to hex and base64
+  const encryptedTextBase64 = encrypt(data, secret_key, secret_iv);
+  return encryptedTextBase64;
 }
 
 // Decrypt data
 function decryptData(encryptedData) {
-  const buff = Buffer.from(encryptedData, 'base64')
-  const decipher = crypto.createDecipheriv(ecnryption_method, key, encryptionIV)
-  return (
-    decipher.update(buff.toString('utf8'), 'hex', 'utf8') +
-    decipher.final('utf8')
-  ) // Decrypts data and converts to utf8
+  return decrypt(encryptedData, secret_key, secret_iv);
 }
 
-module.exports = {decryptData, encryptData}
+module.exports = { decryptData, encryptData };

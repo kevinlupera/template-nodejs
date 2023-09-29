@@ -54,7 +54,6 @@ app.delete('/categories/:id', API.authenticateKey, async (req, res) => {
 app.post("/encrypt", (req, res) => {
   try {
     const { data } = req.body;
-    console.log("🚀 ~ file: app.js:32 ~ app.post ~ data:", data);
     const encryptedData = encryption.encryptData(data);
     res.json({ encryptedData });
   } catch (error) {
@@ -65,9 +64,9 @@ app.post("/encrypt", (req, res) => {
 
 app.post("/decrypt", (req, res) => {
   try {
-    const { encryptedData } = req.body;
-    const data = encryption.decryptData(encryptedData);
-    res.json({ data });
+    const { data } = req.body;
+    const decryptedData = encryption.decryptData(data);
+    res.json({ decryptedData });
   } catch (error) {
     console.log("🚀 ~ file: app.js:41 ~ app.post ~ error:", error);
     res.status(500).end();

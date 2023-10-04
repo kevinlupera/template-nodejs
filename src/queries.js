@@ -75,7 +75,7 @@ async function getTotalEvents(idCategory) {
   let response;
   try {
     response = await pool.query(
-      `SELECT count(id) FROM events where id_category = ${idCategory}`
+      `SELECT count(id) FROM events where id_category = ${idCategory} and status = 1`
     );
   } catch (error) {
     throw error;
@@ -91,7 +91,7 @@ const getEvents = async (request, response) => {
     const total = parseInt(await getTotalEvents(idCategory));
     const totalPages = total ? parseInt(total / ROWS_BY_PAGE) + 1 : 0;
     pool.query(
-      `SELECT * FROM events where id_category = ${idCategory} ORDER BY id ASC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`,
+      `SELECT * FROM events where id_category = ${idCategory} and status = 1 ORDER BY id ASC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`,
       (error, resutls) => {
         if (error) {
           throw error;
@@ -111,7 +111,7 @@ const getEvent = async (request, response) => {
   try {
     const id = parseInt(request.params.id);
     pool.query(
-      `SELECT * FROM events where id = ${id} LIMIT 1`,
+      `SELECT * FROM events where id = ${id} and status = 1 LIMIT 1`,
       (error, resutls) => {
         if (error) {
           throw error;
@@ -146,7 +146,10 @@ const updateEvent = async (request, response) => {
 const createEvent = async (request, response) => {
   const { id_category, title, subtitle, poster_path, backdrop_path, url, key, key2, description } = request.body
 
-  pool.query('INSERT INTO events (id_category, title, subtitle, poster_path, backdrop_path, url, "key", key2, description) VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9) RETURNING *', [id_category, title, subtitle, poster_path, backdrop_path, url, key, key2, description], (error, results) => {
+  const encryptedKey = encryption.encryptData(key);
+  const encryptedKey2 = encryption.encryptData(key2);
+  
+  pool.query('INSERT INTO events (id_category, title, subtitle, poster_path, backdrop_path, url, "key", key2, description) VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9) RETURNING *', [id_category, title, subtitle, poster_path, backdrop_path, url, encryptedKey, encryptedKey2, description], (error, results) => {
     if (error) {
       throw error
     }

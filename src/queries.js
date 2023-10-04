@@ -1,5 +1,6 @@
 const Pool = require("pg").Pool;
 require('dotenv').config()
+const encryption = require("./encryption.js");
 
 const pool = new Pool({
   user: process.env.USERDB,
@@ -129,11 +130,11 @@ const getEvent = async (request, response) => {
 
 const updateEvent = async (request, response) => {
   const id = parseInt(request.params.id)
-  const { id_category, title, subtitle, poster_path, backdrop_path, url, key, key2, description, type } = request.body
+  const { id_category, title, subtitle, poster_path, backdrop_path, url, key, key2, description, id_type } = request.body
 
   pool.query(
-    'UPDATE events SET id_category = $1, title = $2, subtitle = $3, poster_path = $4, backdrop_path = $5, url = $6, "key" = $7, key2 = $8, description = $9, type = $10 WHERE id = $10',
-    [id_category, title, subtitle, poster_path, backdrop_path, url, key, key2, description, type, id],
+    'UPDATE events SET id_category = $1, title = $2, subtitle = $3, poster_path = $4, backdrop_path = $5, url = $6, "key" = $7, key2 = $8, description = $9, id_type = $10 WHERE id = $10',
+    [id_category, title, subtitle, poster_path, backdrop_path, url, key, key2, description, id_type, id],
     (error, results) => {
       if (error) {
         throw error
@@ -144,12 +145,12 @@ const updateEvent = async (request, response) => {
 }
 
 const createEvent = async (request, response) => {
-  const { id_category, title, subtitle, poster_path, backdrop_path, url, key, key2, description, type } = request.body
+  const { id_category, title, subtitle, poster_path, backdrop_path, url, key, key2, description, id_type } = request.body
 
   const encryptedKey = encryption.encryptData(key);
   const encryptedKey2 = encryption.encryptData(key2);
   
-  pool.query('INSERT INTO events (id_category, title, subtitle, poster_path, backdrop_path, url, "key", key2, description, type) VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10) RETURNING *', [id_category, title, subtitle, poster_path, backdrop_path, url, encryptedKey, encryptedKey2, description, type], (error, results) => {
+  pool.query('INSERT INTO events (id_category, title, subtitle, poster_path, backdrop_path, url, "key", key2, description, id_type) VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10) RETURNING *', [id_category, title, subtitle, poster_path, backdrop_path, url, encryptedKey, encryptedKey2, description, id_type], (error, results) => {
     if (error) {
       throw error
     }

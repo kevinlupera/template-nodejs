@@ -16,7 +16,7 @@ const ROWS_BY_PAGE = 10;
 /* Category*/
 const getCategories = async (request, response) => {
   try {
-    pool.query("SELECT * FROM categories ORDER BY id ASC", (error, resutls) => {
+    pool.query("SELECT * FROM categories ORDER BY id DESC", (error, resutls) => {
       if (error) {
         throw error;
       }
@@ -92,7 +92,7 @@ const getEvents = async (request, response) => {
     const total = parseInt(await getTotalEvents(idCategory));
     const totalPages = total ? parseInt(total / ROWS_BY_PAGE) + 1 : 0;
     pool.query(
-      `SELECT * FROM events where id_category = ${idCategory} and status = 1 ORDER BY id ASC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`,
+      `SELECT * FROM events where id_category = ${idCategory} and status = 1 ORDER BY id DESC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`,
       (error, resutls) => {
         if (error) {
           throw error;

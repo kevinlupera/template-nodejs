@@ -153,10 +153,11 @@ const updateEvent = async (request, response) => {
     key2,
     description,
     id_type,
+    country
   } = request.body;
 
   pool.query(
-    'UPDATE events SET id_category = $1, title = $2, subtitle = $3, poster_path = $4, backdrop_path = $5, url = $6, "key" = $7, key2 = $8, description = $9, id_type = $10 WHERE id = $10',
+    'UPDATE events SET id_category = $1, title = $2, subtitle = $3, poster_path = $4, backdrop_path = $5, url = $6, "key" = $7, key2 = $8, description = $9, id_type = $10, country = $11 WHERE id = $12',
     [
       id_category,
       title,
@@ -168,6 +169,7 @@ const updateEvent = async (request, response) => {
       key2,
       description,
       id_type,
+      country,
       id,
     ],
     (error, results) => {
@@ -191,13 +193,14 @@ const createEvent = async (request, response) => {
     key2,
     description,
     id_type,
+    country
   } = request.body;
 
   const encryptedKey = encryption.encryptData(key);
   const encryptedKey2 = encryption.encryptData(key2);
 
   pool.query(
-    'INSERT INTO events (id_category, title, subtitle, poster_path, backdrop_path, url, "key", key2, description, id_type) VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10) RETURNING *',
+    'INSERT INTO events (id_category, title, subtitle, poster_path, backdrop_path, url, "key", key2, description, id_type, country) VALUES ($1, $2, $3, $4, $5, $6,$7, $8, $9, $10, $11) RETURNING *',
     [
       id_category,
       title,
@@ -209,6 +212,7 @@ const createEvent = async (request, response) => {
       encryptedKey2,
       description,
       id_type,
+      country,
     ],
     (error, results) => {
       if (error) {

@@ -84,12 +84,12 @@ const deleteCategory = async (request, response) => {
 };
 
 /* Events */
-async function getTotalEvents(idCategory) {
+async function getTotalEvents(idCategory, filterGeneralCountry) {
   let count = 0;
   let response;
   try {
     response = await pool.query(
-      `SELECT count(id) FROM events where id_category = ${idCategory} and status = 1`
+      `SELECT count(id) FROM events where id_category = ${idCategory} and status = 1 ${filterGeneralCountry}`
     );
   } catch (error) {
     throw error;
@@ -103,24 +103,24 @@ const getEvents = async (request, response) => {
     const idCategory = parseInt(request.params.idCategory);
     const country = request.query.country;
     const offset = ROWS_BY_PAGE * (page - 1);
-    const total = parseInt(await getTotalEvents(idCategory));
-    const totalPages = total ? parseInt(total / ROWS_BY_PAGE) + 1 : 0;
+    
     let filterByCountry = country ? "'" + country + "'= ANY(country) or" : "";
-    const query = `SELECT * FROM events where id_category = ${idCategory} and status = 1 and (${filterByCountry} `+"'general' = ANY(country))" + ` ORDER BY id DESC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`
-    console.log("🚀 ~ file: queries.js:111 ~ getEvents ~ query:", query)
+    const filterGeneralCountry =
+      ` and (${filterByCountry} ` + " 'general' = ANY(country))";
+      const total = parseInt(await getTotalEvents(idCategory, filterGeneralCountry));
+      const totalPages = total ? parseInt(total / ROWS_BY_PAGE) + 1 : 0;
+    const query = `SELECT * FROM events where id_category = ${idCategory} and status = 1 ${filterGeneralCountry} ORDER BY id DESC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`;
+    console.log("🚀 ~ file: queries.js:111 ~ getEvents ~ query:", query);
 
-    pool.query(
-      query,
-      (error, resutls) => {
-        if (error) {
-          throw error;
-        }
-        response
-          .status(200)
-          .json(formatResponse(resutls.rows, page, totalPages, total))
-          .end();
+    pool.query(query, (error, resutls) => {
+      if (error) {
+        throw error;
       }
-    );
+      response
+        .status(200)
+        .json(formatResponse(resutls.rows, page, totalPages, total))
+        .end();
+    });
   } catch (error) {
     console.log("🚀 ~ file: queries.js:47 ~ getEvents ~ error:", error);
     response.status(400).end();
@@ -252,6 +252,23 @@ const formatResponse = (rows, page, totalPages, total) => {
   };
 };
 
+const getVersion = async (request, response) => {
+  try {
+    pool.query(
+      `SELECT * FROM versions LIMIT 1`,
+      (error, resutls) => {
+        if (error) {
+          throw error;
+        }
+        response.status(200).json(resutls.rows?.[0]).end();
+      }
+    );
+  } catch (error) {
+    console.log("🚀 ~ file: queries.js:268 ~ getVersion ~ error:", error)
+    response.status(400).end();
+  }
+};
+
 module.exports = {
   // Categories
   getCategories,
@@ -264,4 +281,6 @@ module.exports = {
   createEvent,
   updateEvent,
   deleteEvent,
+  // Version
+  getVersion
 };

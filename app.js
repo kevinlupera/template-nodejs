@@ -73,9 +73,9 @@ app.post("/decrypt", (req, res) => {
   }
 });
 
-// app.get('*', (req, res) => {
-//     res.redirect('/');
-// })
+app.get("/version", API.authenticateKey, async (req, res) => {
+  await db.getVersion(req, res);
+});
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);

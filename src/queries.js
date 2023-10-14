@@ -105,9 +105,12 @@ const getEvents = async (request, response) => {
     const offset = ROWS_BY_PAGE * (page - 1);
     const total = parseInt(await getTotalEvents(idCategory));
     const totalPages = total ? parseInt(total / ROWS_BY_PAGE) + 1 : 0;
-    let filterByCountry = country ? "and '" + country + "'= ANY(country) " : "";
+    let filterByCountry = country ? "'" + country + "'= ANY(country) or" : "";
+    const query = `SELECT * FROM events where id_category = ${idCategory} and status = 1 and (${filterByCountry} `+"'general' = ANY(country))" + ` ORDER BY id DESC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`
+    console.log("🚀 ~ file: queries.js:111 ~ getEvents ~ query:", query)
+
     pool.query(
-      `SELECT * FROM events where id_category = ${idCategory} and status = 1 ${filterByCountry} ORDER BY id DESC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`,
+      query,
       (error, resutls) => {
         if (error) {
           throw error;

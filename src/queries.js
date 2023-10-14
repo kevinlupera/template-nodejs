@@ -101,11 +101,13 @@ const getEvents = async (request, response) => {
   try {
     const page = parseInt(request.params.page);
     const idCategory = parseInt(request.params.idCategory);
+    const country = request.query.country;
     const offset = ROWS_BY_PAGE * (page - 1);
     const total = parseInt(await getTotalEvents(idCategory));
     const totalPages = total ? parseInt(total / ROWS_BY_PAGE) + 1 : 0;
+    let filterByCountry = country ? "and '" + country + "'= ANY(country) " : "";
     pool.query(
-      `SELECT * FROM events where id_category = ${idCategory} and status = 1 ORDER BY id DESC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`,
+      `SELECT * FROM events where id_category = ${idCategory} and status = 1 ${filterByCountry} ORDER BY id DESC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`,
       (error, resutls) => {
         if (error) {
           throw error;
@@ -153,7 +155,7 @@ const updateEvent = async (request, response) => {
     key2,
     description,
     id_type,
-    country
+    country,
   } = request.body;
 
   pool.query(
@@ -193,7 +195,7 @@ const createEvent = async (request, response) => {
     key2,
     description,
     id_type,
-    country
+    country,
   } = request.body;
 
   const encryptedKey = encryption.encryptData(key);

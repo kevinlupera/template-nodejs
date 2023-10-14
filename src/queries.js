@@ -103,13 +103,17 @@ const getEvents = async (request, response) => {
     const idCategory = parseInt(request.params.idCategory);
     const country = request.query.country;
     const offset = ROWS_BY_PAGE * (page - 1);
-    
+
     let filterByCountry = country ? "'" + country + "'= ANY(country) or" : "";
     const filterGeneralCountry =
       ` and (${filterByCountry} ` + " 'general' = ANY(country))";
-      const total = parseInt(await getTotalEvents(idCategory, filterGeneralCountry));
-      const totalPages = total ? parseInt(total / ROWS_BY_PAGE) + 1 : 0;
-    const query = `SELECT * FROM events where id_category = ${idCategory} and status = 1 ${filterGeneralCountry} ORDER BY id DESC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`;
+    const total = parseInt(
+      await getTotalEvents(idCategory, filterGeneralCountry)
+    );
+    const totalPages = total ? parseInt(total / ROWS_BY_PAGE) + 1 : 0;
+    const query = `
+    SELECT id, description, title, subtitle, id_category, poster_path, backdrop_path, url, "key", key2, id_type
+     FROM events where id_category = ${idCategory} and status = 1 ${filterGeneralCountry} ORDER BY id DESC LIMIT ${ROWS_BY_PAGE} OFFSET ${offset}`;
     console.log("🚀 ~ file: queries.js:111 ~ getEvents ~ query:", query);
 
     pool.query(query, (error, resutls) => {
@@ -254,17 +258,14 @@ const formatResponse = (rows, page, totalPages, total) => {
 
 const getVersion = async (request, response) => {
   try {
-    pool.query(
-      `SELECT * FROM versions LIMIT 1`,
-      (error, resutls) => {
-        if (error) {
-          throw error;
-        }
-        response.status(200).json(resutls.rows?.[0]).end();
+    pool.query(`SELECT * FROM versions LIMIT 1`, (error, resutls) => {
+      if (error) {
+        throw error;
       }
-    );
+      response.status(200).json(resutls.rows?.[0]).end();
+    });
   } catch (error) {
-    console.log("🚀 ~ file: queries.js:268 ~ getVersion ~ error:", error)
+    console.log("🚀 ~ file: queries.js:268 ~ getVersion ~ error:", error);
     response.status(400).end();
   }
 };
@@ -282,5 +283,5 @@ module.exports = {
   updateEvent,
   deleteEvent,
   // Version
-  getVersion
+  getVersion,
 };
